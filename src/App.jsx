@@ -2,12 +2,12 @@ import "@mantine/core/styles.css";
 
 import { MantineProvider } from "@mantine/core";
 
-import DocLinks from "./components/DocLinks";
+import { BasicShellApp } from "./components/Shell";
 
 export default function App() {
   return (
     <MantineProvider>
-      <DocLinks />
+      <BasicShellApp />
     </MantineProvider>
   );
 }
