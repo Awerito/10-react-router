@@ -7,6 +7,7 @@ import {
   Link,
   useParams,
   Outlet,
+  Navigate,
 } from "react-router-dom";
 
 export function BasicShellApp() {
@@ -48,6 +49,8 @@ export function BasicShellApp() {
               <Route index element={<PostsList />} />
               <Route path=":id" element={<PostDetails />} />
             </Route>
+            {/* Handle unknown routes */}
+            <Route path="*" element={<NotFound />} />{" "}
           </Routes>
         </AppShell.Main>
       </AppShell>
@@ -89,11 +92,32 @@ function PostsList() {
 
 function PostDetails() {
   const { id } = useParams();
+  const posts = [
+    { id: 1, title: "Post 1" },
+    { id: 2, title: "Post 2" },
+    { id: 3, title: "Post 3" },
+  ]; // Made up data for the example
+
+  const post = posts.find((post) => post.id === parseInt(id));
+
+  if (!post) {
+    return <Navigate to="/404" />;
+  }
 
   return (
     <div>
       <h3>Post Details for Post ID: {id}</h3>
-      <p>This is the detailed view for post {id}.</p>
+      <p>This is the detailed view for {post.title}</p>
+    </div>
+  );
+}
+
+function NotFound() {
+  return (
+    <div>
+      <h2>404 - Page Not Found</h2>
+      <p>The page you are looking for does not exist.</p>
+      <Link to="/">Go to Home</Link>
     </div>
   );
 }
