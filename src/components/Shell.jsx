@@ -10,6 +10,22 @@ import {
   Navigate,
 } from "react-router-dom";
 
+// Fake database
+const userData = [
+  {
+    username: "john_doe",
+    repos: ["repo1", "repo2", "repo3"],
+  },
+  {
+    username: "jane_doe",
+    repos: ["repoA", "repoB"],
+  },
+  {
+    username: "jane_smith",
+    repos: ["repoX", "repoY", "repoZ"],
+  },
+];
+
 export function BasicShellApp() {
   const [opened, { toggle }] = useDisclosure();
 
@@ -35,9 +51,11 @@ export function BasicShellApp() {
               <li>
                 <Link to="/">Home</Link>
               </li>
-              <li>
-                <Link to="/posts">Posts</Link>
-              </li>
+              {userData.map((user) => (
+                <li key={user.username}>
+                  <Link to={`/${user.username}`}>{user.username}</Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </AppShell.Navbar>
@@ -45,11 +63,12 @@ export function BasicShellApp() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="posts" element={<PostsLayout />}>
-              <Route index element={<PostsList />} />
-              <Route path=":id" element={<PostDetails />} />
+            <Route path="/:username" element={<UserLayout />}>
+              <Route index element={<UserProfile />} />
+              <Route path=":reponame" element={<RepoDetail />} />
             </Route>
             {/* Handle unknown routes */}
+            <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />{" "}
           </Routes>
         </AppShell.Main>
@@ -62,52 +81,51 @@ function Home() {
   return <div>Welcome to the Home Page!</div>;
 }
 
-function PostsLayout() {
-  return (
-    <div>
-      <h2>Posts</h2>
-      <Outlet />{" "}
-      {/* Outlet to render either the post list or individual post */}
-    </div>
-  );
-}
+function UserLayout() {
+  const { username } = useParams();
+  const user = userData.find((user) => user.username === username);
 
-function PostsList() {
-  const posts = [
-    { id: 1, title: "Post 1" },
-    { id: 2, title: "Post 2" },
-    { id: 3, title: "Post 3" },
-  ];
-
-  return (
-    <ul>
-      {posts.map((post) => (
-        <li key={post.id}>
-          <Link to={`/posts/${post.id}`}>{post.title}</Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function PostDetails() {
-  const { id } = useParams();
-  const posts = [
-    { id: 1, title: "Post 1" },
-    { id: 2, title: "Post 2" },
-    { id: 3, title: "Post 3" },
-  ]; // Made up data for the example
-
-  const post = posts.find((post) => post.id === parseInt(id));
-
-  if (!post) {
+  if (!user) {
     return <Navigate to="/404" />;
   }
 
   return (
     <div>
-      <h3>Post Details for Post ID: {id}</h3>
-      <p>This is the detailed view for {post.title}</p>
+      <h2>User profile: {username}</h2>
+      <Outlet />
+    </div>
+  );
+}
+
+function UserProfile() {
+  const { username } = useParams();
+  const user = userData.find((user) => user.username === username);
+
+  return (
+    <div>
+      <h3>Repositories:</h3>
+      <ul>
+        {user.repos.map((repo) => (
+          <li key={repo}>
+            <Link to={`${repo}`}>{repo}</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RepoDetail() {
+  const { username, reponame } = useParams();
+  const user = userData.find((user) => user.username === username);
+
+  if (!user || !user.repos.includes(reponame)) {
+    return <Navigate to="/404" />;
+  }
+
+  return (
+    <div>
+      <h2>Repository: {reponame}</h2>
     </div>
   );
 }
